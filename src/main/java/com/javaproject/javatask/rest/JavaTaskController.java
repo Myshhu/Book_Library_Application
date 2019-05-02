@@ -1,8 +1,9 @@
 package com.javaproject.javatask.rest;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import com.google.gson.JsonObject;
+import com.javaproject.javatask.repository.BookRepository;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class JavaTaskController {
@@ -13,5 +14,19 @@ public class JavaTaskController {
             stringparam = "no param passed";
         }
         return "First page, " + stringparam + ".";
+    }
+
+    @ResponseStatus(value = HttpStatus.NOT_FOUND)
+    private class ResourceNotFoundException extends RuntimeException {}
+
+    @RequestMapping(value = "/bookdetails/{ISBN}", method = RequestMethod.GET, produces = "application/json")
+    public String bookDetails(@PathVariable String ISBN) {//@RequestParam(value = "ISBN") String ISBN) {
+
+        JsonObject foundBook = BookRepository.getBookByISBN(ISBN);
+        if(foundBook == null) {
+            throw new ResourceNotFoundException();
+        } else {
+            return foundBook.toString();
+        }
     }
 }
