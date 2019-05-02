@@ -2,6 +2,7 @@ package com.javaproject.javatask.rest;
 
 import com.google.gson.JsonObject;
 import com.javaproject.javatask.repository.BookRepository;
+import com.javaproject.javatask.repository.GoogleAPIBookRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,7 +23,9 @@ public class JavaTaskController {
     @RequestMapping(value = "/bookdetails/{ISBN}", method = RequestMethod.GET, produces = "application/json")
     public String bookDetails(@PathVariable String ISBN) {//@RequestParam(value = "ISBN") String ISBN) {
 
-        JsonObject foundBook = BookRepository.getBookByISBN(ISBN);
+        //JsonObject foundBook = BookRepository.getBookByISBN(ISBN);
+        JsonObject foundBook = GoogleAPIBookRepository.getBookByISBN(ISBN);
+
         if(foundBook == null) {
             throw new ResourceNotFoundException();
         } else {
