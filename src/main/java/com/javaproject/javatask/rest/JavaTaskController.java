@@ -22,8 +22,17 @@ public class JavaTaskController {
 
     @RequestMapping(value = "/bookdetails/{ISBN}", method = RequestMethod.GET, produces = "application/json")
     public String bookDetails(@PathVariable String ISBN) {//@RequestParam(value = "ISBN") String ISBN) {
+        JsonObject foundBook = BookRepository.getBookByISBN(ISBN);
 
-        //JsonObject foundBook = BookRepository.getBookByISBN(ISBN);
+        if(foundBook == null) {
+            throw new ResourceNotFoundException();
+        } else {
+            return foundBook.toString();
+        }
+    }
+
+    @RequestMapping(value = "/bookdetails/googleapi/{ISBN}", method = RequestMethod.GET, produces = "application/json")
+    public String bookDetailsFromGoogleAPI(@PathVariable String ISBN) {//@RequestParam(value = "ISBN") String ISBN) {
         JsonObject foundBook = GoogleAPIBookRepository.getBookByISBN(ISBN);
 
         if(foundBook == null) {

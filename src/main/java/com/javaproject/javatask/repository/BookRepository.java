@@ -3,12 +3,17 @@ package com.javaproject.javatask.repository;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.javaproject.javatask.rest.JavaTaskController;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 
 public class BookRepository {
+
+    private static final Logger logger = LoggerFactory.getLogger(JavaTaskController.class);
 
     private static JsonObject booksJSONObject = readJSONFromFile();
 
@@ -25,6 +30,7 @@ public class BookRepository {
     }
 
     public static JsonObject getBookByISBN(String requestedISBN) {
+        logger.info("BookRepository queried with ISBN: " + requestedISBN);
         JsonArray booksJSONArray = booksJSONObject.getAsJsonArray("items");
 
         for(int i = 0; i < booksJSONArray.size(); i++) {
