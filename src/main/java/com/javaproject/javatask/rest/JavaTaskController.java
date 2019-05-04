@@ -1,5 +1,6 @@
 package com.javaproject.javatask.rest;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.javaproject.javatask.repository.BookRepository;
 import com.javaproject.javatask.repository.GoogleAPIBookRepository;
@@ -21,7 +22,7 @@ public class JavaTaskController {
     private class ResourceNotFoundException extends RuntimeException {}
 
     @RequestMapping(value = "/bookdetails/{ISBN}", method = RequestMethod.GET, produces = "application/json")
-    public String bookDetails(@PathVariable String ISBN) {//@RequestParam(value = "ISBN") String ISBN) {
+    public String bookDetailsByISBN(@PathVariable String ISBN) {//@RequestParam(value = "ISBN") String ISBN) {
         JsonObject foundBook = BookRepository.getBookByISBN(ISBN);
 
         if(foundBook == null) {
@@ -32,13 +33,33 @@ public class JavaTaskController {
     }
 
     @RequestMapping(value = "/bookdetails/googleapi/{ISBN}", method = RequestMethod.GET, produces = "application/json")
-    public String bookDetailsFromGoogleAPI(@PathVariable String ISBN) {//@RequestParam(value = "ISBN") String ISBN) {
+    public String bookDetailsByISBNFromGoogleAPI(@PathVariable String ISBN) {//@RequestParam(value = "ISBN") String ISBN) {
         JsonObject foundBook = GoogleAPIBookRepository.getBookByISBN(ISBN);
 
         if(foundBook == null) {
             throw new ResourceNotFoundException();
         } else {
             return foundBook.toString();
+        }
+    }
+
+    @RequestMapping(value = "/bookscategory/{category}", method = RequestMethod.GET, produces = "application/json")
+    public String findBooksDetailsByCategory(@PathVariable String category) {//@RequestParam(value = "ISBN") String ISBN) {
+        JsonArray foundBooks = BookRepository.getBooksByCategory(category);
+        if(foundBooks == null) {
+            throw new ResourceNotFoundException();
+        } else {
+            return foundBooks.toString();
+        }
+    }
+
+    @RequestMapping(value = "/bookscategory/googleapi/{category}", method = RequestMethod.GET, produces = "application/json")
+    public String findBooksDetailsByCategoryFromGoogleAPI(@PathVariable String category) {//@RequestParam(value = "ISBN") String ISBN) {
+        JsonArray foundBooks = GoogleAPIBookRepository.getBooksByCategory(category);
+        if(foundBooks == null) {
+            throw new ResourceNotFoundException();
+        } else {
+            return foundBooks.toString();
         }
     }
 }

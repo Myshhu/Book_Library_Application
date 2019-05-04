@@ -3,6 +3,7 @@ package com.javaproject.javatask.repository;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.javaproject.javatask.rest.JavaTaskController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,5 +50,24 @@ public class BookRepository {
             }
         }
         return null;
+    }
+
+    public static JsonArray getBooksByCategory(String requestedCategory) {
+        logger.info("BookRepository queried with Category: " + requestedCategory);
+        JsonArray booksJSONArray = booksJSONObject.getAsJsonArray("items");
+        JsonArray resultArray = new JsonArray();
+
+        for(int i = 0; i < booksJSONArray.size(); i++) {
+            JsonObject currentObject = (JsonObject) booksJSONArray.get(i);
+            JsonObject currentObjectVolumeInfo = (JsonObject) currentObject.get("volumeInfo");
+
+            JsonArray currentObjectCategories = currentObjectVolumeInfo.getAsJsonArray("categories");
+
+            if(currentObjectCategories != null && currentObjectCategories.contains(new JsonParser().parse(requestedCategory))) {
+                logger.info(currentObjectCategories.toString());
+                resultArray.add(currentObject);
+            }
+        }
+        return resultArray;
     }
 }

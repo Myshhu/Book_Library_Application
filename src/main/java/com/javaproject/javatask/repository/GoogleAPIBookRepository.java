@@ -1,8 +1,8 @@
 package com.javaproject.javatask.repository;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.javaproject.javatask.rest.JavaTaskController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,12 +16,33 @@ public class GoogleAPIBookRepository {
     private static final Logger logger = LoggerFactory.getLogger(GoogleAPIBookRepository.class);
 
     public static JsonObject getBookByISBN(String requestedISBN) {
-        try {
-            logger.info("Google API book queried with query: " + requestedISBN);
-            InputStream inputStream = new URL("https://www.googleapis.com/books/v1/volumes?q=" + requestedISBN).openStream();
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, Charset.forName("UTF-8")));
-            String jsonText = readResponseToString(bufferedReader);
+        logger.info("Google API BookRepository queried with query: " + requestedISBN);
+        String jsonText = getResponseStringFromURL("https://www.googleapis.com/books/v1/volumes?q=" + requestedISBN);
+        if (jsonText != null) {
             return new JsonParser().parse(jsonText).getAsJsonObject();
+        } else {
+            return null;
+        }
+    }
+
+    public static JsonArray getBooksByCategory(String requestedCategory) {
+        logger.info("Google API BookRepository queried with Category: " + requestedCategory);
+        String jsonText = getResponseStringFromURL("https://www.googleapis.com/books/v1/volumes?q=subject:" + requestedCategory);
+        JsonObject responseObject;
+        if (jsonText != null) {
+            responseObject = new JsonParser().parse(jsonText).getAsJsonObject();
+            if(responseObject.get("items") != null) {
+                return responseObject.get("items").getAsJsonArray(); //Array of found books
+            }
+        }
+        return new JsonArray(); //Return empty list
+    }
+
+    private static String getResponseStringFromURL(String url) {
+        try {
+            InputStream inputStream = new URL(url).openStream();
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, Charset.forName("UTF-8")));
+            return readResponseToString(bufferedReader);
         } catch (Exception e) {
             e.printStackTrace();
         }
