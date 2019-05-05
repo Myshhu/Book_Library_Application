@@ -17,11 +17,22 @@ public class GoogleAPIBookRepository {
 
     private static final Logger logger = LoggerFactory.getLogger(GoogleAPIBookRepository.class);
 
+    /**
+     *
+     * @param requestedISBN Parameter needed to search for a book with a given number
+     * @return Book information as JSONObject if found, return null if book not found
+     */
     public static JSONObject getBookByISBN(String requestedISBN) {
         logger.info("Google API BookRepository queried with query: " + requestedISBN);
         return findBookByISBN(requestedISBN, getResponseStringFromURL("https://www.googleapis.com/books/v1/volumes?q=" + requestedISBN));
     }
 
+    /**
+     *
+     * @param requestedISBN Parameter needed to search for a book with a given number
+     * @param jsonText JSONObject as string with found book informations
+     * @return Book information as JSONObject if jsonString not null, otherwise return null
+     */
     public static JSONObject findBookByISBN(String requestedISBN, String jsonText) {
         if (jsonText != null) {
             return new JSONObject(jsonText);
@@ -30,6 +41,11 @@ public class GoogleAPIBookRepository {
         }
     }
 
+    /**
+     *
+     * @param requestedCategory Category from which we want to find books
+     * @return JSONArray of found books
+     */
     public static JSONArray getBooksByCategory(String requestedCategory) {
         logger.info("Google API BookRepository queried with Category: " + requestedCategory);
         JSONObject responseObject;
@@ -43,6 +59,11 @@ public class GoogleAPIBookRepository {
         return new JSONArray(); //Return empty list
     }
 
+    /**
+     *
+     * @param url URL from where we want to read response
+     * @return URL response as String
+     */
     private static String getResponseStringFromURL(String url) {
         try {
             InputStream inputStream = new URL(url).openStream();
@@ -54,6 +75,12 @@ public class GoogleAPIBookRepository {
         return null;
     }
 
+    /**
+     *
+     * @param reader BufferedReader whose content will be converted to String
+     * @return BufferedReader content as String
+     * @throws IOException When readLine function fails
+     */
     private static String readBufferedReaderToString(BufferedReader reader) throws IOException {
         StringBuilder result = new StringBuilder();
         String line;
@@ -63,6 +90,10 @@ public class GoogleAPIBookRepository {
         return result.toString();
     }
 
+    /**
+     *
+     * @return JSONArray with authors and their books average rating
+     */
     public static JSONArray getAuthorsRatings() {
         JSONArray authorsWithAverageRatingsArray = new JSONArray();
 
@@ -83,6 +114,10 @@ public class GoogleAPIBookRepository {
         return authorsWithAverageRatingsArray;
     }
 
+    /**
+     *
+     * @return Map with authors and their sum of average ratings and sum of their books which were rated
+     */
     private static Map<String, List<Double>> createAuthorsWithSumOfAverageRatingsMap() {
         JSONObject responseObject;
         String jsonText = getResponseStringFromURL("https://www.googleapis.com/books/v1/volumes?q=*");
@@ -135,6 +170,10 @@ public class GoogleAPIBookRepository {
         return null;
     }
 
+    /**
+     *
+     * @return JSONArray with all found authors
+     */
     public static JSONArray getAllAuthors() {
         logger.info("BookRepository queried to find all authors.");
 
@@ -163,6 +202,11 @@ public class GoogleAPIBookRepository {
         return convertSetToJSONArray(authorsSet);
     }
 
+    /**
+     *
+     * @param resultSet HashSet with Strings
+     * @return JSONArray with HashSet content
+     */
     private static JSONArray convertSetToJSONArray(HashSet<String> resultSet) {
         JSONArray resultArray = new JSONArray();
         for (String item : resultSet) {

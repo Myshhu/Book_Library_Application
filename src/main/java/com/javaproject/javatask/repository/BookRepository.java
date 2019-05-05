@@ -27,6 +27,10 @@ public class BookRepository {
         BookRepository.booksJSONArray = booksJSONArray;
     }
 
+    /**
+     *
+     * @return JSONObject from file
+     */
     private static JSONObject readJSONFromFile() {
         logger.info("Reading JSON from file");
         JSONObject JSONObjectFromFile = null;
@@ -42,6 +46,12 @@ public class BookRepository {
         return JSONObjectFromFile;
     }
 
+    /**
+     *
+     * @param reader BufferedReader whose content will be converted to String
+     * @return BufferedReader content as String
+     * @throws IOException When readLine function fails
+     */
     private static String readBufferedReaderToString(BufferedReader reader) throws IOException {
         StringBuilder result = new StringBuilder();
         String line;
@@ -51,6 +61,11 @@ public class BookRepository {
         return result.toString();
     }
 
+    /**
+     *
+     * @param requestedISBN Parameter needed to search for a book with a given number
+     * @return Book information as JSONObject if found, return null if book not found
+     */
     public static JSONObject getBookByISBN(String requestedISBN) {
         logger.info("BookRepository queried with ISBN: " + requestedISBN);
 
@@ -72,6 +87,11 @@ public class BookRepository {
         return null;
     }
 
+    /**
+     *
+     * @param requestedCategory Category from which we want to find books
+     * @return JSONArray of found books
+     */
     public static JSONArray getBooksByCategory(String requestedCategory) {
         logger.info("BookRepository queried with Category: " + requestedCategory);
         JSONArray resultArray = new JSONArray();
@@ -92,6 +112,12 @@ public class BookRepository {
         return resultArray;
     }
 
+    /**
+     *
+     * @param array JSONArray with elements
+     * @param element String element to check if array contains it
+     * @return True if array contains element, otherwise false
+     */
     private static boolean containsString(JSONArray array, String element) {
         for (int i = 0; i < array.length(); i++) {
             String currentElement = array.getString(i);
@@ -102,6 +128,10 @@ public class BookRepository {
         return false;
     }
 
+    /**
+     *
+     * @return JSONArray with authors and their books average rating
+     */
     public static JSONArray getAuthorsRatings() {
         JSONArray authorsWithAverageRatingsArray = new JSONArray();
 
@@ -120,6 +150,10 @@ public class BookRepository {
         return authorsWithAverageRatingsArray;
     }
 
+    /**
+     *
+     * @return Map with authors and their sum of average ratings and sum of their books which were rated
+     */
     private static Map<String, List<Double>> createAuthorsWithSumOfAverageRatingsMap() {
         Map<String, List<Double>> authorsWithSumOfAverageRatingsMap = new HashMap<>();
 
@@ -164,6 +198,10 @@ public class BookRepository {
         return authorsWithSumOfAverageRatingsMap;
     }
 
+    /**
+     *
+     * @return JSONArray with all found authors
+     */
     public static JSONArray getAllAuthors() {
         logger.info("BookRepository queried to find all authors.");
         HashSet<String> authorsSet = new HashSet<>();
@@ -185,6 +223,11 @@ public class BookRepository {
         return convertSetToJSONArray(authorsSet);
     }
 
+    /**
+     *
+     * @param resultSet HashSet with Strings
+     * @return JSONArray with HashSet content
+     */
     private static JSONArray convertSetToJSONArray(HashSet<String> resultSet) {
         JSONArray resultArray = new JSONArray();
         for (String item : resultSet) {
