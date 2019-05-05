@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.javaproject.javatask.repository.BookRepository;
 import com.javaproject.javatask.repository.GoogleAPIBookRepository;
+import org.json.JSONArray;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -66,7 +67,7 @@ public class JavaTaskController {
     @RequestMapping(value = "/rating", method = RequestMethod.GET, produces = "application/json")
     public String findAuthors() {//@RequestParam(value = "ISBN") String ISBN) {
         //JsonArray foundAuthors = BookRepository.getAllAuthors();
-        JsonArray ratings = BookRepository.getAuthorsRatings();
+        JSONArray ratings = BookRepository.getAuthorsRatings();
         if(ratings == null) {
             throw new ResourceNotFoundException();
         } else {

@@ -2,6 +2,8 @@ package com.javaproject.javatask.repository;
 
 import com.google.gson.*;
 import com.javaproject.javatask.rest.JavaTaskController;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.MultiValueMap;
@@ -69,20 +71,20 @@ public class BookRepository {
         return resultArray;
     }
 
-    public static JsonArray getAuthorsRatings() {
-        JsonArray booksJSONArray = booksJSONObject.getAsJsonArray("items");
+    public static JSONArray getAuthorsRatings() {
         Map<String, List<Double>> authorsWithRatingsMap = createAuthorsWithRatingsMap();
 
-        JsonArray authorsWithAverageRatingsArray = new JsonArray();
+        JSONArray authorsWithAverageRatingsArray = new JSONArray();
         for (Map.Entry<String, List<Double>> entry : authorsWithRatingsMap.entrySet()) {
-            JsonObject newObject = new JsonObject();
+            JSONObject newObject = new JSONObject();
             String authorName = entry.getKey();
             double sumOfRatings = entry.getValue().get(0);
             double sumOfRatedBooks = entry.getValue().get(1);
             double averageRating = sumOfRatings / sumOfRatedBooks;
-            JsonElement element = new JsonParser().parse(authorName);
-            newObject.add("author", element);
-            authorsWithAverageRatingsArray.add(newObject);
+            logger.info(authorName);
+            newObject.put("author", authorName);
+            newObject.put("averageRating", averageRating);
+            authorsWithAverageRatingsArray.put(newObject);
         }
         return authorsWithAverageRatingsArray;
     }
@@ -102,17 +104,21 @@ public class BookRepository {
                         if(currentObjectVolumeInfo.get("averageRating") != null) {
                             List<Double> currentValuesList = authorsWithRatingsList.get(currentAuthor.getAsString());
                             double averageRating = currentObjectVolumeInfo.get("averageRating").getAsDouble();
-                            double newAverageRating = currentValuesList.get(0) + averageRating;
-                            double newAmountOfRatedBooks = currentValuesList.get(1) + 1;
-                            currentValuesList.set(0, newAverageRating);
-                            currentValuesList.set(1, newAmountOfRatedBooks);
+                            double currentSumOfAverageRating = currentValuesList.get(0);
+                            double currentSumOfRatedBooks = currentValuesList.get(1);
+
+                            double newSumOfAverageRating = currentSumOfAverageRating + averageRating;
+                            double newSumOfRatedBooks = currentSumOfRatedBooks + 1;
+
+                            currentValuesList.set(0, newSumOfAverageRating);
+                            currentValuesList.set(1, newSumOfRatedBooks);
                         }
                     } else {
-                        double averageRating = 0.0;
+                        double currentSumOfAverageRating = 0.0;
                         if(currentObjectVolumeInfo.get("averageRating") != null) {
-                            averageRating = currentObjectVolumeInfo.get("averageRating").getAsDouble();
+                            currentSumOfAverageRating = currentObjectVolumeInfo.get("averageRating").getAsDouble();
                         }
-                        List<Double> tempList = new ArrayList<>(Arrays.asList(averageRating, 1.0));
+                        List<Double> tempList = new ArrayList<>(Arrays.asList(currentSumOfAverageRating, 1.0));
                         authorsWithRatingsList.put(currentAuthor.getAsString(), tempList);
                     }
                 }
