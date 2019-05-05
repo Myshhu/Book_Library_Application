@@ -16,12 +16,12 @@ public class JavaTaskController {
 
     /**
      *
-     * @param ISBN parameter needed to search for a book with a given number
+     * @param isbn parameter needed to search for a book with a given number
      * @return JSONObject with book details if found, else send 404 response
      */
-    @RequestMapping(value = "/bookdetails/{ISBN}", method = RequestMethod.GET, produces = "application/json")
-    public String bookDetailsByISBN(@PathVariable String ISBN) {
-        JSONObject foundBook = BookRepository.getBookByISBN(ISBN);
+    @GetMapping(value = "/bookdetails/{ISBN}", produces = "application/json")
+    public String bookDetailsByISBN(@PathVariable String isbn) {
+        JSONObject foundBook = BookRepository.getBookByISBN(isbn);
 
         if (foundBook == null) {
             throw new ResourceNotFoundException();
@@ -32,12 +32,12 @@ public class JavaTaskController {
 
     /**
      *
-     * @param ISBN parameter needed to search for a book with a given number
+     * @param isbn parameter needed to search for a book with a given number
      * @return JSONObject with book details if found, else send 404 response
      */
-    @RequestMapping(value = "/bookdetails/googleapi/{ISBN}", method = RequestMethod.GET, produces = "application/json")
-    public String bookDetailsByISBNFromGoogleAPI(@PathVariable String ISBN) {
-        JSONObject foundBook = GoogleAPIBookRepository.getBookByISBN(ISBN);
+    @GetMapping(value = "/bookdetails/googleapi/{ISBN}", produces = "application/json")
+    public String bookDetailsByISBNFromGoogleAPI(@PathVariable String isbn) {
+        JSONObject foundBook = GoogleAPIBookRepository.getBookByISBN(isbn);
 
         if (foundBook == null) {
             throw new ResourceNotFoundException();
@@ -50,7 +50,7 @@ public class JavaTaskController {
      *
      * @return Empty array
      */
-    @RequestMapping(value = "/bookscategory/", method = RequestMethod.GET, produces = "application/json")
+    @GetMapping(value = "/bookscategory/", produces = "application/json")
     public String findBooksWhenNotGivenCategory() {
         return new JSONArray().toString();
     }
@@ -60,7 +60,7 @@ public class JavaTaskController {
      * @param category Category from which we want to find books
      * @return JSONArray with found books informations, if no book found then it returns empty array
      */
-    @RequestMapping(value = "/bookscategory/{category}", method = RequestMethod.GET, produces = "application/json")
+    @GetMapping(value = "/bookscategory/{category}", produces = "application/json")
     public String findBooksDetailsByCategory(@PathVariable String category) {
         JSONArray foundBooks = BookRepository.getBooksByCategory(category);
         if (foundBooks == null) {
@@ -75,7 +75,7 @@ public class JavaTaskController {
      * @param category Category from which we want to find books
      * @return JSONArray with found books informations, if no book found then it returns empty array
      */
-    @RequestMapping(value = "/bookscategory/googleapi/{category}", method = RequestMethod.GET, produces = "application/json")
+    @GetMapping(value = "/bookscategory/googleapi/{category}", produces = "application/json")
     public String findBooksDetailsByCategoryFromGoogleAPI(@PathVariable String category) {
         JSONArray foundBooks = GoogleAPIBookRepository.getBooksByCategory(category);
         if (foundBooks == null) {
@@ -89,7 +89,7 @@ public class JavaTaskController {
      *
      * @return JSONArray with authors and their books average rating
      */
-    @RequestMapping(value = "/rating", method = RequestMethod.GET, produces = "application/json")
+    @GetMapping(value = "/rating", produces = "application/json")
     public String findAuthors() {
         JSONArray ratings = BookRepository.getAuthorsRatings();
         if (ratings == null) {
@@ -103,7 +103,7 @@ public class JavaTaskController {
      *
      * @return JSONArray with authors and their books average rating
      */
-    @RequestMapping(value = "/rating/googleapi", method = RequestMethod.GET, produces = "application/json")
+    @GetMapping(value = "/rating/googleapi", produces = "application/json")
     public String findAuthorsFromGoogleAPI() {
         JSONArray foundAuthors = GoogleAPIBookRepository.getAuthorsRatings();
         if (foundAuthors == null) {
