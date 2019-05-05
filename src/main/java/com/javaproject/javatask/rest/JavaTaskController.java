@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import com.javaproject.javatask.repository.BookRepository;
 import com.javaproject.javatask.repository.GoogleAPIBookRepository;
 import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,7 +17,7 @@ public class JavaTaskController {
 
     @RequestMapping(value = "/bookdetails/{ISBN}", method = RequestMethod.GET, produces = "application/json")
     public String bookDetailsByISBN(@PathVariable String ISBN) {
-        JsonObject foundBook = BookRepository.getBookByISBN(ISBN);
+        JSONObject foundBook = BookRepository.getBookByISBN(ISBN);
 
         if(foundBook == null) {
             throw new ResourceNotFoundException();
@@ -27,7 +28,7 @@ public class JavaTaskController {
 
     @RequestMapping(value = "/bookdetails/googleapi/{ISBN}", method = RequestMethod.GET, produces = "application/json")
     public String bookDetailsByISBNFromGoogleAPI(@PathVariable String ISBN) {
-        JsonObject foundBook = GoogleAPIBookRepository.getBookByISBN(ISBN);
+        JSONObject foundBook = GoogleAPIBookRepository.getBookByISBN(ISBN);
 
         if(foundBook == null) {
             throw new ResourceNotFoundException();
@@ -38,7 +39,7 @@ public class JavaTaskController {
 
     @RequestMapping(value = "/bookscategory/{category}", method = RequestMethod.GET, produces = "application/json")
     public String findBooksDetailsByCategory(@PathVariable String category) {
-        JsonArray foundBooks = BookRepository.getBooksByCategory(category);
+        JSONArray foundBooks = BookRepository.getBooksByCategory(category);
         if(foundBooks == null) {
             throw new ResourceNotFoundException();
         } else {
@@ -48,7 +49,7 @@ public class JavaTaskController {
 
     @RequestMapping(value = "/bookscategory/googleapi/{category}", method = RequestMethod.GET, produces = "application/json")
     public String findBooksDetailsByCategoryFromGoogleAPI(@PathVariable String category) {
-        JsonArray foundBooks = GoogleAPIBookRepository.getBooksByCategory(category);
+        JSONArray foundBooks = GoogleAPIBookRepository.getBooksByCategory(category);
         if(foundBooks == null) {
             throw new ResourceNotFoundException();
         } else {

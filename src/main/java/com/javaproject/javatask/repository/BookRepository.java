@@ -1,6 +1,5 @@
 package com.javaproject.javatask.repository;
 
-import com.google.gson.*;
 import com.javaproject.javatask.rest.JavaTaskController;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -8,66 +7,92 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 import java.util.*;
 
 public class BookRepository {
 
     private static final Logger logger = LoggerFactory.getLogger(JavaTaskController.class);
 
-    private static JsonObject booksJSONObject = readJSONFromFile();
+    private static JSONObject booksJSONObject = readJSONFromFile();
+    private static JSONArray booksJSONArray = booksJSONObject.getJSONArray("items");
 
-    private static JsonObject readJSONFromFile() {
-        JsonObject JsonObjectFromFile = null;
-        try {
-            BufferedReader bufferedReader = new BufferedReader(new FileReader("books.json"));
-            Gson gson = new Gson();
-            JsonObjectFromFile = gson.fromJson(bufferedReader, JsonObject.class);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        return JsonObjectFromFile;
+    public static JSONArray getBooksJSONArray() {
+        return booksJSONArray;
     }
 
-    public static JsonObject getBookByISBN(String requestedISBN) {
+    public static void setBooksJSONArray(JSONArray booksJSONArray) {
+        logger.info("Setting JSONArray");
+        BookRepository.booksJSONArray = booksJSONArray;
+    }
+
+    private static JSONObject readJSONFromFile() {
+        logger.info("Reading JSON from file");
+        JSONObject JSONObjectFromFile = null;
+        String jsonString;
+        try {
+            BufferedReader bufferedReader = new BufferedReader(new FileReader("books.json"));
+            //JSONObjectFromFile = gson.fromJson(bufferedReader, JsonObject.class);
+            jsonString = readBufferedReaderToString(bufferedReader);
+            JSONObjectFromFile = new JSONObject(jsonString);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return JSONObjectFromFile;
+    }
+
+    public static JSONObject getBookByISBN(String requestedISBN) {
         logger.info("BookRepository queried with ISBN: " + requestedISBN);
-        JsonArray booksJSONArray = booksJSONObject.getAsJsonArray("items");
 
-        for (int i = 0; i < booksJSONArray.size(); i++) {
-            JsonObject currentBook = (JsonObject) booksJSONArray.get(i);
+        if (booksJSONArray != null) {
+            //for (Object currentBook : booksJSONArray) {
+            for (int i = 0; i < booksJSONArray.length(); i++) {
+                JSONObject currentBook = booksJSONArray.getJSONObject(i);
+                JSONObject currentBookVolumeInfo = currentBook.getJSONObject("volumeInfo");
+                JSONArray currentBookIdentifiers = currentBookVolumeInfo.getJSONArray("industryIdentifiers");
 
-            JsonObject currentBookVolumeInfo = (JsonObject) currentBook.get("volumeInfo");
-            JsonArray currentBookIdentifiers = currentBookVolumeInfo.getAsJsonArray("industryIdentifiers");
-
-            for (int m = 0; m < currentBookIdentifiers.size(); m++) {
-                JsonObject industryIdentifier = (JsonObject) currentBookIdentifiers.get(m);
-                String ISBN = industryIdentifier.get("identifier").getAsString();
-
-                if (ISBN.equals(requestedISBN)) {
-                    return currentBook;
+                //for (Object industryIdentifier : currentBookIdentifiers) {
+                for (int m = 0; m < currentBookIdentifiers.length(); m++) {
+                    JSONObject industryIdentifier = currentBookIdentifiers.getJSONObject(m);
+                    String ISBN = industryIdentifier.getString("identifier");
+                    if (ISBN.equals(requestedISBN)) {
+                        return currentBook;
+                    }
                 }
             }
         }
         return null;
     }
 
-    public static JsonArray getBooksByCategory(String requestedCategory) {
+    public static JSONArray getBooksByCategory(String requestedCategory) {
         logger.info("BookRepository queried with Category: " + requestedCategory);
-        JsonArray booksJSONArray = booksJSONObject.getAsJsonArray("items");
-        JsonArray resultArray = new JsonArray();
+        JSONArray resultArray = new JSONArray();
+        if (booksJSONArray != null) {
+            for (int i = 0; i < booksJSONArray.length(); i++) {
+                JSONObject currentBook = booksJSONArray.getJSONObject(i);
+                JSONObject currentBookVolumeInfo = currentBook.getJSONObject("volumeInfo");
+                JSONArray currentBookCategories;
 
-        for (int i = 0; i < booksJSONArray.size(); i++) {
-            JsonObject currentBook = (JsonObject) booksJSONArray.get(i);
-            JsonObject currentBookVolumeInfo = (JsonObject) currentBook.get("volumeInfo");
-
-            JsonArray currentBookCategories = currentBookVolumeInfo.getAsJsonArray("categories");
-
-            if (currentBookCategories != null && currentBookCategories.contains(new JsonParser().parse(requestedCategory))) {
-                resultArray.add(currentBook);
+                if (currentBookVolumeInfo.has("categories")) {
+                    currentBookCategories = currentBookVolumeInfo.getJSONArray("categories");
+                    if (containsString(currentBookCategories, requestedCategory)) {
+                        resultArray.put(currentBook);
+                    }
+                }
             }
         }
         return resultArray;
+    }
+
+    private static boolean containsString(JSONArray array, String element) {
+        for (int i = 0; i < array.length(); i++) {
+            String currentElement = array.getString(i);
+            if (currentElement.equals(element)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static JSONArray getAuthorsRatings() {
@@ -89,35 +114,39 @@ public class BookRepository {
     }
 
     private static Map<String, List<Double>> createAuthorsWithSumOfAverageRatingsMap() {
-        JsonArray booksJSONArray = booksJSONObject.getAsJsonArray("items");
+        //JSONArray booksJSONArray = booksJSONObject.getAsJSONArray("items");
         Map<String, List<Double>> authorsWithSumOfAverageRatingsList = new HashMap<>();
 
-        for (JsonElement currentBook : booksJSONArray) {
-            JsonObject currentBookVolumeInfo = ((JsonObject) currentBook).getAsJsonObject("volumeInfo");
-            JsonArray currentBookAuthors = currentBookVolumeInfo.getAsJsonArray("authors");
+        if (booksJSONArray != null) {
+            for (int i = 0; i < booksJSONArray.length(); i++) {
+                JSONObject currentBook = booksJSONArray.getJSONObject(i);
+                JSONObject currentBookVolumeInfo = currentBook.getJSONObject("volumeInfo");
+                if (currentBookVolumeInfo.has("authors")) {
+                    JSONArray currentBookAuthors = currentBookVolumeInfo.getJSONArray("authors");
 
-            if (currentBookAuthors != null) {
-                for (JsonElement currentAuthor : currentBookAuthors) {
-                    if (authorsWithSumOfAverageRatingsList.containsKey(currentAuthor.getAsString())) {
-                        if (currentBookVolumeInfo.get("averageRating") != null) {
-                            List<Double> currentValuesList = authorsWithSumOfAverageRatingsList.get(currentAuthor.getAsString());
-                            double averageRating = currentBookVolumeInfo.get("averageRating").getAsDouble();
-                            double currentSumOfAverageRating = currentValuesList.get(0);
-                            double currentSumOfRatedBooks = currentValuesList.get(1);
+                    for (int m = 0; m < currentBookAuthors.length(); m++) {
+                        String currentAuthor = currentBookAuthors.getString(m);
+                        if (authorsWithSumOfAverageRatingsList.containsKey(currentAuthor)) {
+                            if (currentBookVolumeInfo.has("averageRating")) {
+                                List<Double> currentValuesList = authorsWithSumOfAverageRatingsList.get(currentAuthor);
+                                double averageRating = currentBookVolumeInfo.getDouble("averageRating");
+                                double currentSumOfAverageRating = currentValuesList.get(0);
+                                double currentSumOfRatedBooks = currentValuesList.get(1);
 
-                            double newSumOfAverageRating = currentSumOfAverageRating + averageRating;
-                            double newSumOfRatedBooks = currentSumOfRatedBooks + 1;
+                                double newSumOfAverageRating = currentSumOfAverageRating + averageRating;
+                                double newSumOfRatedBooks = currentSumOfRatedBooks + 1;
 
-                            currentValuesList.set(0, newSumOfAverageRating);
-                            currentValuesList.set(1, newSumOfRatedBooks);
+                                currentValuesList.set(0, newSumOfAverageRating);
+                                currentValuesList.set(1, newSumOfRatedBooks);
+                            }
+                        } else {
+                            double currentSumOfAverageRating = 0.0;
+                            if (currentBookVolumeInfo.has("averageRating")) {
+                                currentSumOfAverageRating = currentBookVolumeInfo.getDouble("averageRating");
+                            }
+                            List<Double> tempList = new ArrayList<>(Arrays.asList(currentSumOfAverageRating, 1.0));
+                            authorsWithSumOfAverageRatingsList.put(currentAuthor, tempList);
                         }
-                    } else {
-                        double currentSumOfAverageRating = 0.0;
-                        if (currentBookVolumeInfo.get("averageRating") != null) {
-                            currentSumOfAverageRating = currentBookVolumeInfo.get("averageRating").getAsDouble();
-                        }
-                        List<Double> tempList = new ArrayList<>(Arrays.asList(currentSumOfAverageRating, 1.0));
-                        authorsWithSumOfAverageRatingsList.put(currentAuthor.getAsString(), tempList);
                     }
                 }
             }
@@ -125,30 +154,43 @@ public class BookRepository {
         return authorsWithSumOfAverageRatingsList;
     }
 
-    public static JsonArray getAllAuthors() {
+    public static JSONArray getAllAuthors() {
         logger.info("BookRepository queried to find all authors.");
 
-        JsonArray booksJSONArray = booksJSONObject.getAsJsonArray("items");
+        //JSONArray booksJSONArray = booksJSONObject.getAsJSONArray("items");
         HashSet<String> authorsSet = new HashSet<>();
 
-        for (JsonElement currentBook : booksJSONArray) {
-            JsonObject currentBookVolumeInfo = ((JsonObject) currentBook).getAsJsonObject("volumeInfo");
-            JsonArray currentBookAuthors = currentBookVolumeInfo.getAsJsonArray("authors");
+        if (booksJSONArray != null) {
+            for (int i = 0; i < booksJSONArray.length(); i++) {
+                JSONObject currentBook = booksJSONArray.getJSONObject(i);
+                JSONObject currentBookVolumeInfo = currentBook.getJSONObject("volumeInfo");
+                if (currentBookVolumeInfo.has("authors")) {
+                    JSONArray currentBookAuthors = currentBookVolumeInfo.getJSONArray("authors");
 
-            if (currentBookAuthors != null) {
-                for (JsonElement currentAuthor : currentBookAuthors) {
-                    authorsSet.add(currentAuthor.getAsString());
+                    for (int m = 0; m < currentBookAuthors.length(); m++) {
+                        String currentAuthor = currentBookAuthors.getString(m);
+                        authorsSet.add(currentAuthor);
+                    }
                 }
             }
         }
         return convertSetToJSONArray(authorsSet);
     }
 
-    private static JsonArray convertSetToJSONArray(HashSet<String> resultSet) {
-        JsonArray resultArray = new JsonArray();
+    private static JSONArray convertSetToJSONArray(HashSet<String> resultSet) {
+        JSONArray resultArray = new JSONArray();
         for (String item : resultSet) {
-            resultArray.add(item);
+            resultArray.put(item);
         }
         return resultArray;
+    }
+
+    private static String readBufferedReaderToString(BufferedReader reader) throws IOException {
+        StringBuilder result = new StringBuilder();
+        String line;
+        while ((line = reader.readLine()) != null) {
+            result.append(line).append("\n");
+        }
+        return result.toString();
     }
 }

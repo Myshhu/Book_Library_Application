@@ -1,9 +1,5 @@
 package com.javaproject.javatask.repository;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -19,34 +15,37 @@ public class GoogleAPIBookRepository {
 
     private static final Logger logger = LoggerFactory.getLogger(GoogleAPIBookRepository.class);
 
-    public static JsonObject getBookByISBN(String requestedISBN) {
+    public static JSONObject getBookByISBN(String requestedISBN) {
         logger.info("Google API BookRepository queried with query: " + requestedISBN);
-        String jsonText = getResponseStringFromURL("https://www.googleapis.com/books/v1/volumes?q=" + requestedISBN);
+        return findBookByISBN(requestedISBN, getResponseStringFromURL("https://www.googleapis.com/books/v1/volumes?q=" + requestedISBN));
+    }
+
+    public static JSONObject findBookByISBN(String requestedISBN, String jsonText) {
         if (jsonText != null) {
-            return new JsonParser().parse(jsonText).getAsJsonObject();
+            return new JSONObject(jsonText);
         } else {
             return null;
         }
     }
 
-    public static JsonArray getBooksByCategory(String requestedCategory) {
+    public static JSONArray getBooksByCategory(String requestedCategory) {
         logger.info("Google API BookRepository queried with Category: " + requestedCategory);
         String jsonText = getResponseStringFromURL("https://www.googleapis.com/books/v1/volumes?q=subject:" + requestedCategory);
-        JsonObject responseObject;
+        JSONObject responseObject;
         if (jsonText != null) {
-            responseObject = new JsonParser().parse(jsonText).getAsJsonObject();
-            if(responseObject.get("items") != null) {
-                return responseObject.get("items").getAsJsonArray(); //Array of found books
+            responseObject = new JSONObject(jsonText);
+            if (responseObject.has("items")) {
+                return responseObject.getJSONArray("items"); //Array of found books
             }
         }
-        return new JsonArray(); //Return empty list
+        return new JSONArray(); //Return empty list
     }
 
     private static String getResponseStringFromURL(String url) {
         try {
             InputStream inputStream = new URL(url).openStream();
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, Charset.forName("UTF-8")));
-            return readResponseToString(bufferedReader);
+            return readBufferedReaderToString(bufferedReader);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -74,25 +73,27 @@ public class GoogleAPIBookRepository {
 
     private static Map<String, List<Double>> createAuthorsWithSumOfAverageRatingsMap() {
         String jsonText = getResponseStringFromURL("https://www.googleapis.com/books/v1/volumes?q=*");
-        JsonObject responseObject;
+        JSONObject responseObject;
         if (jsonText != null) {
-            responseObject = new JsonParser().parse(jsonText).getAsJsonObject();
-            if(responseObject.get("items") != null) {
-                JsonArray booksJSONArray = responseObject.get("items").getAsJsonArray(); //Array of found books
+            responseObject = new JSONObject(jsonText);
+            if (responseObject.has("items")) {
+                JSONArray booksJSONArray = responseObject.getJSONArray("items"); //Array of found books
 
                 Map<String, List<Double>> authorsWithRatingsList = new HashMap<>();
 
-                for (JsonElement currentBook : booksJSONArray) {
-                    JsonObject currentBookVolumeInfo = ((JsonObject) currentBook).getAsJsonObject("volumeInfo");
-                    JsonArray currentBookAuthors = currentBookVolumeInfo.getAsJsonArray("authors");
+                for (int i = 0; i < booksJSONArray.length(); i++) {
+                    JSONObject currentBook = booksJSONArray.getJSONObject(i);
+                    JSONObject currentBookVolumeInfo = currentBook.getJSONObject("volumeInfo");
+                    if (currentBookVolumeInfo.has("authors")) {
+                        JSONArray currentBookAuthors = currentBookVolumeInfo.getJSONArray("authors");
 
-                    if (currentBookAuthors != null) {
-                        for (JsonElement currentAuthor : currentBookAuthors) {
+                        for (int m = 0; m < currentBookAuthors.length(); m++) {
+                            String currentAuthor = currentBookAuthors.getString(m);
 
-                            if (authorsWithRatingsList.containsKey(currentAuthor.getAsString())) {
-                                if(currentBookVolumeInfo.get("averageRating") != null) {
-                                    List<Double> currentValuesList = authorsWithRatingsList.get(currentAuthor.getAsString());
-                                    double averageRating = currentBookVolumeInfo.get("averageRating").getAsDouble();
+                            if (authorsWithRatingsList.containsKey(currentAuthor)) {
+                                if (currentBookVolumeInfo.has("averageRating")) {
+                                    List<Double> currentValuesList = authorsWithRatingsList.get(currentAuthor);
+                                    double averageRating = currentBookVolumeInfo.getDouble("averageRating");
                                     double currentSumOfAverageRating = currentValuesList.get(0);
                                     double currentSumOfRatedBooks = currentValuesList.get(1);
 
@@ -104,11 +105,11 @@ public class GoogleAPIBookRepository {
                                 }
                             } else {
                                 double currentSumOfAverageRating = 0.0;
-                                if(currentBookVolumeInfo.get("averageRating") != null) {
-                                    currentSumOfAverageRating = currentBookVolumeInfo.get("averageRating").getAsDouble();
+                                if (currentBookVolumeInfo.has("averageRating")) {
+                                    currentSumOfAverageRating = currentBookVolumeInfo.getDouble("averageRating");
                                 }
                                 List<Double> tempList = new ArrayList<>(Arrays.asList(currentSumOfAverageRating, 1.0));
-                                authorsWithRatingsList.put(currentAuthor.getAsString(), tempList);
+                                authorsWithRatingsList.put(currentAuthor, tempList);
                             }
                         }
                     }
@@ -119,24 +120,26 @@ public class GoogleAPIBookRepository {
         return null;
     }
 
-    public static JsonArray getAllAuthors() {
+    public static JSONArray getAllAuthors() {
         logger.info("BookRepository queried to find all authors.");
 
         String jsonText = getResponseStringFromURL("https://www.googleapis.com/books/v1/volumes?q=*");
-        JsonObject responseObject;
+        JSONObject responseObject;
         HashSet<String> authorsSet = new HashSet<>();
-        if(jsonText != null) {
-            responseObject = new JsonParser().parse(jsonText).getAsJsonObject();
-            if(responseObject.get("items") != null) {
-                JsonArray booksJSONArray = responseObject.get("items").getAsJsonArray(); //Array of found books
+        if (jsonText != null) {
+            responseObject = new JSONObject(jsonText);
+            if (responseObject.has("items")) {
+                JSONArray booksJSONArray = responseObject.getJSONArray("items"); //Array of found books
 
-                for (JsonElement currentBook : booksJSONArray) {
-                    JsonObject currentBookVolumeInfo = ((JsonObject) currentBook).getAsJsonObject("volumeInfo");
-                    JsonArray currentBookAuthors = currentBookVolumeInfo.getAsJsonArray("authors");
+                for (int i = 0; i < booksJSONArray.length(); i++) {
+                    JSONObject currentBook = booksJSONArray.getJSONObject(i);
+                    JSONObject currentBookVolumeInfo = currentBook.getJSONObject("volumeInfo");
+                    if (currentBookVolumeInfo.has("authors")) {
+                        JSONArray currentBookAuthors = currentBookVolumeInfo.getJSONArray("authors");
 
-                    if (currentBookAuthors != null) {
-                        for (JsonElement currentAuthor : currentBookAuthors) {
-                            authorsSet.add(currentAuthor.getAsString());
+                        for (int m = 0; m < currentBookAuthors.length(); m++) {
+                            String currentAuthor = currentBookAuthors.getString(m);
+                            authorsSet.add(currentAuthor);
                         }
                     }
                 }
@@ -145,18 +148,18 @@ public class GoogleAPIBookRepository {
         return convertSetToJSONArray(authorsSet);
     }
 
-    private static JsonArray convertSetToJSONArray(HashSet<String> resultSet) {
-        JsonArray resultArray = new JsonArray();
-        for(String item : resultSet) {
-            resultArray.add(item);
+    private static JSONArray convertSetToJSONArray(HashSet<String> resultSet) {
+        JSONArray resultArray = new JSONArray();
+        for (String item : resultSet) {
+            resultArray.put(item);
         }
         return resultArray;
     }
 
-    private static String readResponseToString(BufferedReader reader) throws IOException {
+    private static String readBufferedReaderToString(BufferedReader reader) throws IOException {
         StringBuilder result = new StringBuilder();
         String line;
-        while((line = reader.readLine()) != null) {
+        while ((line = reader.readLine()) != null) {
             result.append(line).append("\n");
         }
         return result.toString();
