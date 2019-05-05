@@ -62,4 +62,25 @@ public class JavaTaskController {
             return foundBooks.toString();
         }
     }
+
+    @RequestMapping(value = "/rating", method = RequestMethod.GET, produces = "application/json")
+    public String findAuthors() {//@RequestParam(value = "ISBN") String ISBN) {
+        //JsonArray foundAuthors = BookRepository.getAllAuthors();
+        JsonArray ratings = BookRepository.getAuthorsRatings();
+        if(ratings == null) {
+            throw new ResourceNotFoundException();
+        } else {
+            return ratings.toString();
+        }
+    }
+
+    @RequestMapping(value = "/rating/googleapi", method = RequestMethod.GET, produces = "application/json")
+    public String findAuthorsFromGoogleAPI() {//@RequestParam(value = "ISBN") String ISBN) {
+        JsonArray foundAuthors = GoogleAPIBookRepository.getAllAuthors();
+        if(foundAuthors == null) {
+            throw new ResourceNotFoundException();
+        } else {
+            return foundAuthors.toString();
+        }
+    }
 }

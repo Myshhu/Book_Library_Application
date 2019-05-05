@@ -1,6 +1,7 @@
 package com.javaproject.javatask.repository;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.slf4j.Logger;
@@ -10,6 +11,7 @@ import java.io.*;
 
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.util.HashSet;
 
 public class GoogleAPIBookRepository {
 
@@ -47,6 +49,40 @@ public class GoogleAPIBookRepository {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public static JsonArray getAllAuthors() {
+        logger.info("BookRepository queried to find all authors.");
+
+        String jsonText = getResponseStringFromURL("https://www.googleapis.com/books/v1/volumes?q=*");
+        JsonObject responseObject;
+        HashSet<String> authorsSet = new HashSet<>();
+        if(jsonText != null) {
+            responseObject = new JsonParser().parse(jsonText).getAsJsonObject();
+            if(responseObject.get("items") != null) {
+                JsonArray booksJSONArray = responseObject.get("items").getAsJsonArray(); //Array of found books
+
+                for (JsonElement currentObject : booksJSONArray) {
+                    JsonObject currentObjectVolumeInfo = ((JsonObject) currentObject).getAsJsonObject("volumeInfo");
+                    JsonArray currentObjectAuthors = currentObjectVolumeInfo.getAsJsonArray("authors");
+
+                    if (currentObjectAuthors != null) {
+                        for (JsonElement currentAuthor : currentObjectAuthors) {
+                            authorsSet.add(currentAuthor.getAsString());
+                        }
+                    }
+                }
+            }
+        }
+        return convertSetToJSONArray(authorsSet);
+    }
+
+    private static JsonArray convertSetToJSONArray(HashSet<String> resultSet) {
+        JsonArray resultArray = new JsonArray();
+        for(String item : resultSet) {
+            resultArray.add(item);
+        }
+        return resultArray;
     }
 
     private static String readResponseToString(BufferedReader reader) throws IOException {
