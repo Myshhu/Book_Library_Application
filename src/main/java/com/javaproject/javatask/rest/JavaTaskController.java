@@ -15,7 +15,7 @@ public class JavaTaskController {
     }
 
     /**
-     *
+     * Find book by given ISBN in repository from file
      * @param isbn parameter needed to search for a book with a given number
      * @return JSONObject with book details if found, else send 404 response
      */
@@ -31,7 +31,7 @@ public class JavaTaskController {
     }
 
     /**
-     *
+     * Find book by given ISBN in repository from Google Books API
      * @param isbn parameter needed to search for a book with a given number
      * @return JSONObject with book details if found, else send 404 response
      */
@@ -47,7 +47,7 @@ public class JavaTaskController {
     }
 
     /**
-     *
+     * Return empty array when category is not specified
      * @return Empty array
      */
     @GetMapping(value = "/bookscategory/", produces = "application/json")
@@ -56,7 +56,7 @@ public class JavaTaskController {
     }
 
     /**
-     *
+     * Find books in given category in repository from file
      * @param category Category from which we want to find books
      * @return JSONArray with found books informations, if no book found then it returns empty array
      */
@@ -71,7 +71,7 @@ public class JavaTaskController {
     }
 
     /**
-     *
+     * Find books in given category in repository from Google Books API
      * @param category Category from which we want to find books
      * @return JSONArray with found books informations, if no book found then it returns empty array
      */
@@ -86,7 +86,7 @@ public class JavaTaskController {
     }
 
     /**
-     *
+     * Find authors and their books average rating in repository from file
      * @return JSONArray with authors and their books average rating
      */
     @GetMapping(value = "/rating", produces = "application/json")
@@ -100,7 +100,7 @@ public class JavaTaskController {
     }
 
     /**
-     *
+     * Find authors and their books average rating in repository from Google Books API
      * @return JSONArray with authors and their books average rating
      */
     @GetMapping(value = "/rating/googleapi", produces = "application/json")
