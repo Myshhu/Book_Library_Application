@@ -46,13 +46,11 @@ public class BookRepository {
         logger.info("BookRepository queried with ISBN: " + requestedISBN);
 
         if (booksJSONArray != null) {
-            //for (Object currentBook : booksJSONArray) {
             for (int i = 0; i < booksJSONArray.length(); i++) {
                 JSONObject currentBook = booksJSONArray.getJSONObject(i);
                 JSONObject currentBookVolumeInfo = currentBook.getJSONObject("volumeInfo");
                 JSONArray currentBookIdentifiers = currentBookVolumeInfo.getJSONArray("industryIdentifiers");
 
-                //for (Object industryIdentifier : currentBookIdentifiers) {
                 for (int m = 0; m < currentBookIdentifiers.length(); m++) {
                     JSONObject industryIdentifier = currentBookIdentifiers.getJSONObject(m);
                     String ISBN = industryIdentifier.getString("identifier");
@@ -114,21 +112,21 @@ public class BookRepository {
     }
 
     private static Map<String, List<Double>> createAuthorsWithSumOfAverageRatingsMap() {
-        //JSONArray booksJSONArray = booksJSONObject.getAsJSONArray("items");
-        Map<String, List<Double>> authorsWithSumOfAverageRatingsList = new HashMap<>();
+        Map<String, List<Double>> authorsWithSumOfAverageRatingsMap = new HashMap<>();
 
         if (booksJSONArray != null) {
-            for (int i = 0; i < booksJSONArray.length(); i++) {
+            for (int i = 0; i < booksJSONArray.length(); i++) { //For every book
                 JSONObject currentBook = booksJSONArray.getJSONObject(i);
                 JSONObject currentBookVolumeInfo = currentBook.getJSONObject("volumeInfo");
-                if (currentBookVolumeInfo.has("authors")) {
+
+                if (currentBookVolumeInfo.has("authors")) { //If book has authors
                     JSONArray currentBookAuthors = currentBookVolumeInfo.getJSONArray("authors");
 
-                    for (int m = 0; m < currentBookAuthors.length(); m++) {
+                    for (int m = 0; m < currentBookAuthors.length(); m++) { //For every book author
                         String currentAuthor = currentBookAuthors.getString(m);
-                        if (authorsWithSumOfAverageRatingsList.containsKey(currentAuthor)) {
+                        if (authorsWithSumOfAverageRatingsMap.containsKey(currentAuthor)) { //If author already added in map
                             if (currentBookVolumeInfo.has("averageRating")) {
-                                List<Double> currentValuesList = authorsWithSumOfAverageRatingsList.get(currentAuthor);
+                                List<Double> currentValuesList = authorsWithSumOfAverageRatingsMap.get(currentAuthor);
                                 double averageRating = currentBookVolumeInfo.getDouble("averageRating");
                                 double currentSumOfAverageRating = currentValuesList.get(0);
                                 double currentSumOfRatedBooks = currentValuesList.get(1);
@@ -139,25 +137,25 @@ public class BookRepository {
                                 currentValuesList.set(0, newSumOfAverageRating);
                                 currentValuesList.set(1, newSumOfRatedBooks);
                             }
-                        } else {
+                        } else { //Add author to map if already not exists
                             double currentSumOfAverageRating = 0.0;
+                            double currentSumOfRatedBooks = 0.0;
                             if (currentBookVolumeInfo.has("averageRating")) {
                                 currentSumOfAverageRating = currentBookVolumeInfo.getDouble("averageRating");
+                                currentSumOfRatedBooks = 1.0;
                             }
-                            List<Double> tempList = new ArrayList<>(Arrays.asList(currentSumOfAverageRating, 1.0));
-                            authorsWithSumOfAverageRatingsList.put(currentAuthor, tempList);
+                            List<Double> tempList = new ArrayList<>(Arrays.asList(currentSumOfAverageRating, currentSumOfRatedBooks));
+                            authorsWithSumOfAverageRatingsMap.put(currentAuthor, tempList);
                         }
                     }
                 }
             }
         }
-        return authorsWithSumOfAverageRatingsList;
+        return authorsWithSumOfAverageRatingsMap;
     }
 
     public static JSONArray getAllAuthors() {
         logger.info("BookRepository queried to find all authors.");
-
-        //JSONArray booksJSONArray = booksJSONObject.getAsJSONArray("items");
         HashSet<String> authorsSet = new HashSet<>();
 
         if (booksJSONArray != null) {

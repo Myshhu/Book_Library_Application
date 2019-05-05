@@ -105,10 +105,12 @@ public class GoogleAPIBookRepository {
                                 }
                             } else {
                                 double currentSumOfAverageRating = 0.0;
+                                double currentSumOfRatedBooks = 0.0;
                                 if (currentBookVolumeInfo.has("averageRating")) {
                                     currentSumOfAverageRating = currentBookVolumeInfo.getDouble("averageRating");
+                                    currentSumOfRatedBooks = 1.0;
                                 }
-                                List<Double> tempList = new ArrayList<>(Arrays.asList(currentSumOfAverageRating, 1.0));
+                                List<Double> tempList = new ArrayList<>(Arrays.asList(currentSumOfAverageRating, currentSumOfRatedBooks));
                                 authorsWithRatingsList.put(currentAuthor, tempList);
                             }
                         }
