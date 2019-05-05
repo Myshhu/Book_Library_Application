@@ -81,7 +81,6 @@ public class BookRepository {
             double sumOfRatings = entry.getValue().get(0);
             double sumOfRatedBooks = entry.getValue().get(1);
             double averageRating = sumOfRatings / sumOfRatedBooks;
-            logger.info(authorName);
             newObject.put("author", authorName);
             newObject.put("averageRating", averageRating);
             authorsWithAverageRatingsArray.put(newObject);

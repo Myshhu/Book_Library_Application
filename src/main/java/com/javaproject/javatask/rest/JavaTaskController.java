@@ -77,7 +77,7 @@ public class JavaTaskController {
 
     @RequestMapping(value = "/rating/googleapi", method = RequestMethod.GET, produces = "application/json")
     public String findAuthorsFromGoogleAPI() {//@RequestParam(value = "ISBN") String ISBN) {
-        JsonArray foundAuthors = GoogleAPIBookRepository.getAllAuthors();
+        JSONArray foundAuthors = GoogleAPIBookRepository.getAuthorsRatings();
         if(foundAuthors == null) {
             throw new ResourceNotFoundException();
         } else {
