@@ -11,19 +11,11 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 public class JavaTaskController {
 
-    @RequestMapping("/first")
-    public String firstPage(@RequestParam(value = "stringparam", required = false) String stringparam) {
-        if(stringparam == null) {
-            stringparam = "no param passed";
-        }
-        return "First page, " + stringparam + ".";
-    }
-
     @ResponseStatus(value = HttpStatus.NOT_FOUND)
     private class ResourceNotFoundException extends RuntimeException {}
 
     @RequestMapping(value = "/bookdetails/{ISBN}", method = RequestMethod.GET, produces = "application/json")
-    public String bookDetailsByISBN(@PathVariable String ISBN) {//@RequestParam(value = "ISBN") String ISBN) {
+    public String bookDetailsByISBN(@PathVariable String ISBN) {
         JsonObject foundBook = BookRepository.getBookByISBN(ISBN);
 
         if(foundBook == null) {
@@ -34,7 +26,7 @@ public class JavaTaskController {
     }
 
     @RequestMapping(value = "/bookdetails/googleapi/{ISBN}", method = RequestMethod.GET, produces = "application/json")
-    public String bookDetailsByISBNFromGoogleAPI(@PathVariable String ISBN) {//@RequestParam(value = "ISBN") String ISBN) {
+    public String bookDetailsByISBNFromGoogleAPI(@PathVariable String ISBN) {
         JsonObject foundBook = GoogleAPIBookRepository.getBookByISBN(ISBN);
 
         if(foundBook == null) {
@@ -45,7 +37,7 @@ public class JavaTaskController {
     }
 
     @RequestMapping(value = "/bookscategory/{category}", method = RequestMethod.GET, produces = "application/json")
-    public String findBooksDetailsByCategory(@PathVariable String category) {//@RequestParam(value = "ISBN") String ISBN) {
+    public String findBooksDetailsByCategory(@PathVariable String category) {
         JsonArray foundBooks = BookRepository.getBooksByCategory(category);
         if(foundBooks == null) {
             throw new ResourceNotFoundException();
@@ -55,7 +47,7 @@ public class JavaTaskController {
     }
 
     @RequestMapping(value = "/bookscategory/googleapi/{category}", method = RequestMethod.GET, produces = "application/json")
-    public String findBooksDetailsByCategoryFromGoogleAPI(@PathVariable String category) {//@RequestParam(value = "ISBN") String ISBN) {
+    public String findBooksDetailsByCategoryFromGoogleAPI(@PathVariable String category) {
         JsonArray foundBooks = GoogleAPIBookRepository.getBooksByCategory(category);
         if(foundBooks == null) {
             throw new ResourceNotFoundException();
@@ -65,8 +57,7 @@ public class JavaTaskController {
     }
 
     @RequestMapping(value = "/rating", method = RequestMethod.GET, produces = "application/json")
-    public String findAuthors() {//@RequestParam(value = "ISBN") String ISBN) {
-        //JsonArray foundAuthors = BookRepository.getAllAuthors();
+    public String findAuthors() {
         JSONArray ratings = BookRepository.getAuthorsRatings();
         if(ratings == null) {
             throw new ResourceNotFoundException();
@@ -76,7 +67,7 @@ public class JavaTaskController {
     }
 
     @RequestMapping(value = "/rating/googleapi", method = RequestMethod.GET, produces = "application/json")
-    public String findAuthorsFromGoogleAPI() {//@RequestParam(value = "ISBN") String ISBN) {
+    public String findAuthorsFromGoogleAPI() {
         JSONArray foundAuthors = GoogleAPIBookRepository.getAuthorsRatings();
         if(foundAuthors == null) {
             throw new ResourceNotFoundException();

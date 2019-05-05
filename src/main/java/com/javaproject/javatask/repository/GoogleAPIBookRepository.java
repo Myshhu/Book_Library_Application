@@ -54,23 +54,25 @@ public class GoogleAPIBookRepository {
     }
 
     public static JSONArray getAuthorsRatings() {
-        Map<String, List<Double>> authorsWithRatingsMap = createAuthorsWithRatingsMap();
+        Map<String, List<Double>> authorsWithRatingsMap = createAuthorsWithSumOfAverageRatingsMap();
 
         JSONArray authorsWithAverageRatingsArray = new JSONArray();
-        for (Map.Entry<String, List<Double>> entry : authorsWithRatingsMap.entrySet()) {
-            JSONObject newObject = new JSONObject();
-            String authorName = entry.getKey();
-            double sumOfRatings = entry.getValue().get(0);
-            double sumOfRatedBooks = entry.getValue().get(1);
-            double averageRating = sumOfRatings / sumOfRatedBooks;
-            newObject.put("author", authorName);
-            newObject.put("averageRating", averageRating);
-            authorsWithAverageRatingsArray.put(newObject);
+        if (authorsWithRatingsMap != null) {
+            for (Map.Entry<String, List<Double>> entry : authorsWithRatingsMap.entrySet()) {
+                JSONObject newObject = new JSONObject();
+                String authorName = entry.getKey();
+                double sumOfRatings = entry.getValue().get(0);
+                double sumOfRatedBooks = entry.getValue().get(1);
+                double averageRating = sumOfRatings / sumOfRatedBooks;
+                newObject.put("author", authorName);
+                newObject.put("averageRating", averageRating);
+                authorsWithAverageRatingsArray.put(newObject);
+            }
         }
         return authorsWithAverageRatingsArray;
     }
 
-    private static Map<String, List<Double>> createAuthorsWithRatingsMap() {
+    private static Map<String, List<Double>> createAuthorsWithSumOfAverageRatingsMap() {
         String jsonText = getResponseStringFromURL("https://www.googleapis.com/books/v1/volumes?q=*");
         JsonObject responseObject;
         if (jsonText != null) {
@@ -80,17 +82,17 @@ public class GoogleAPIBookRepository {
 
                 Map<String, List<Double>> authorsWithRatingsList = new HashMap<>();
 
-                for (JsonElement currentObject : booksJSONArray) {
-                    JsonObject currentObjectVolumeInfo = ((JsonObject) currentObject).getAsJsonObject("volumeInfo");
-                    JsonArray currentObjectAuthors = currentObjectVolumeInfo.getAsJsonArray("authors");
+                for (JsonElement currentBook : booksJSONArray) {
+                    JsonObject currentBookVolumeInfo = ((JsonObject) currentBook).getAsJsonObject("volumeInfo");
+                    JsonArray currentBookAuthors = currentBookVolumeInfo.getAsJsonArray("authors");
 
-                    if (currentObjectAuthors != null) {
-                        for (JsonElement currentAuthor : currentObjectAuthors) {
+                    if (currentBookAuthors != null) {
+                        for (JsonElement currentAuthor : currentBookAuthors) {
 
                             if (authorsWithRatingsList.containsKey(currentAuthor.getAsString())) {
-                                if(currentObjectVolumeInfo.get("averageRating") != null) {
+                                if(currentBookVolumeInfo.get("averageRating") != null) {
                                     List<Double> currentValuesList = authorsWithRatingsList.get(currentAuthor.getAsString());
-                                    double averageRating = currentObjectVolumeInfo.get("averageRating").getAsDouble();
+                                    double averageRating = currentBookVolumeInfo.get("averageRating").getAsDouble();
                                     double currentSumOfAverageRating = currentValuesList.get(0);
                                     double currentSumOfRatedBooks = currentValuesList.get(1);
 
@@ -102,8 +104,8 @@ public class GoogleAPIBookRepository {
                                 }
                             } else {
                                 double currentSumOfAverageRating = 0.0;
-                                if(currentObjectVolumeInfo.get("averageRating") != null) {
-                                    currentSumOfAverageRating = currentObjectVolumeInfo.get("averageRating").getAsDouble();
+                                if(currentBookVolumeInfo.get("averageRating") != null) {
+                                    currentSumOfAverageRating = currentBookVolumeInfo.get("averageRating").getAsDouble();
                                 }
                                 List<Double> tempList = new ArrayList<>(Arrays.asList(currentSumOfAverageRating, 1.0));
                                 authorsWithRatingsList.put(currentAuthor.getAsString(), tempList);
@@ -128,12 +130,12 @@ public class GoogleAPIBookRepository {
             if(responseObject.get("items") != null) {
                 JsonArray booksJSONArray = responseObject.get("items").getAsJsonArray(); //Array of found books
 
-                for (JsonElement currentObject : booksJSONArray) {
-                    JsonObject currentObjectVolumeInfo = ((JsonObject) currentObject).getAsJsonObject("volumeInfo");
-                    JsonArray currentObjectAuthors = currentObjectVolumeInfo.getAsJsonArray("authors");
+                for (JsonElement currentBook : booksJSONArray) {
+                    JsonObject currentBookVolumeInfo = ((JsonObject) currentBook).getAsJsonObject("volumeInfo");
+                    JsonArray currentBookAuthors = currentBookVolumeInfo.getAsJsonArray("authors");
 
-                    if (currentObjectAuthors != null) {
-                        for (JsonElement currentAuthor : currentObjectAuthors) {
+                    if (currentBookAuthors != null) {
+                        for (JsonElement currentAuthor : currentBookAuthors) {
                             authorsSet.add(currentAuthor.getAsString());
                         }
                     }
