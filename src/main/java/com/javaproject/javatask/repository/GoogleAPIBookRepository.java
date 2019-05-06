@@ -20,14 +20,7 @@ public class GoogleAPIBookRepository extends Repository {
      */
     public static JSONObject getBookByISBN(String requestedISBN) {
         logger.info("Google API BookRepository queried with query: {}", requestedISBN);
-        return findBookByISBN(getResponseStringFromURL("https://www.googleapis.com/books/v1/volumes?q=" + requestedISBN));
-    }
-
-    /**
-     * @param jsonText JSONObject as string with found book informations
-     * @return Book information as JSONObject if jsonString not null, otherwise return null
-     */
-    public static JSONObject findBookByISBN(String jsonText) {
+        String jsonText = getResponseStringFromURL("https://www.googleapis.com/books/v1/volumes?q=" + requestedISBN);
         if (jsonText != null) {
             return new JSONObject(jsonText);
         } else {
@@ -56,6 +49,8 @@ public class GoogleAPIBookRepository extends Repository {
      * @return JSONArray with authors and their books average rating
      */
     public static JSONArray getAuthorsRatings() {
+        logger.info("Google API BookRepository queried to find authors books average rating");
+
         return findAuthorsRatings(createAuthorsWithSumOfAverageRatingsMap());
     }
 

@@ -18,11 +18,11 @@ public class BookRepository extends Repository {
     private static JSONObject booksJSONObject = readJSONFromFile();
     private static JSONArray booksJSONArray = booksJSONObject.getJSONArray("items");
 
-    public static JSONArray getBooksJSONArray() {
+    static JSONArray getBooksJSONArray() {
         return booksJSONArray;
     }
 
-    public static void setBooksJSONArray(JSONArray newBooksJSONArray) {
+    static void setBooksJSONArray(JSONArray newBooksJSONArray) {
         logger.info("Setting JSONArray");
         booksJSONArray = newBooksJSONArray;
     }
@@ -80,6 +80,7 @@ public class BookRepository extends Repository {
      * @return JSONArray with authors and their books average rating
      */
     public static JSONArray getAuthorsRatings() {
+        logger.info("BookRepository queried to find authors books average rating");
         return findAuthorsRatings(createAuthorsWithSumOfAverageRatingsMap());
     }
 
@@ -99,7 +100,7 @@ public class BookRepository extends Repository {
     /**
      * @return JSONArray with all found authors
      */
-    public static JSONArray getAllAuthors() {
+    static JSONArray getAllAuthors() {
         logger.info("BookRepository queried to find all authors.");
         HashSet<String> authorsSet = new HashSet<>();
         if (booksJSONArray != null) {
