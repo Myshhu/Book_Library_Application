@@ -24,7 +24,7 @@ public class BookRepositoryTests {
     public void getBookByISBN() throws JSONException {
         assertNull(BookRepository.getBookByISBN("12"));
 
-        if(BookRepository.getBooksJSONArray() != null) {
+        if (BookRepository.getBooksJSONArray() != null) {
             JSONObject firstBook = (JSONObject) BookRepository.getBooksJSONArray().get(0);
             assertEquals(firstBook, BookRepository.getBookByISBN("0596001436")); //ISBN of first book
         } else {
@@ -46,21 +46,21 @@ public class BookRepositoryTests {
     @Test
     public void getAuthorsRatings() {
         JSONArray authorsWithAvrRatingsArray = BookRepository.getAuthorsRatings();
-        for(int i = 0; i < authorsWithAvrRatingsArray.length(); i++) {
+        for (int i = 0; i < authorsWithAvrRatingsArray.length(); i++) {
             try {
                 JSONObject currentAuthor = authorsWithAvrRatingsArray.getJSONObject(i);
                 switch (currentAuthor.getString("author")) {
                     case "Janice C. Newberry":
-                        assertEquals(4.0, currentAuthor.getDouble("averageRating"),0.00005);
+                        assertEquals(4.0, currentAuthor.getDouble("averageRating"), 0.00005);
                         break;
                     case "Douglas Lea":
-                        assertEquals(4.5, currentAuthor.getDouble("averageRating"),0.00005);
+                        assertEquals(4.5, currentAuthor.getDouble("averageRating"), 0.00005);
                         break;
                     case "Bret Barker":
-                        assertEquals(3.75, currentAuthor.getDouble("averageRating"),0.00005);
+                        assertEquals(3.75, currentAuthor.getDouble("averageRating"), 0.00005);
                         break;
                     case "Laurence Vanhelsuwé":
-                        assertEquals(4.0, currentAuthor.getDouble("averageRating"),0.00005);
+                        assertEquals(4.0, currentAuthor.getDouble("averageRating"), 0.00005);
                         break;
                 }
             } catch (Exception e) {
