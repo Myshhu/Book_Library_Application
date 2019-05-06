@@ -4,7 +4,7 @@
 - mvn clean package
 - java -jar target/javatask-0.0.1-SNAPSHOT.jar
 
-### Application is running by default on port 8080
+### Application runs on port 8080 by default
 ### Endpoints: http://localhost:8080
 - /bookdetails/{isbn} - Book details endpoint; search book with given isbn
 - /bookdetails/googleapi/{isbn} - Book details endpoint; search book with given isbn with Google Books API
