@@ -43,6 +43,38 @@ public class BookRepositoryTests {
         assertEquals(1, foundBooks.length());
     }
 
+    @Test
+    public void getAuthorsRatings() {
+        JSONArray authorsWithAvrRatingsArray = BookRepository.getAuthorsRatings();
+        for(int i = 0; i < authorsWithAvrRatingsArray.length(); i++) {
+            try {
+                JSONObject currentAuthor = authorsWithAvrRatingsArray.getJSONObject(i);
+                switch (currentAuthor.getString("author")) {
+                    case "Janice C. Newberry":
+                        assertEquals(4.0, currentAuthor.getDouble("averageRating"),0.00005);
+                        break;
+                    case "Douglas Lea":
+                        assertEquals(4.5, currentAuthor.getDouble("averageRating"),0.00005);
+                        break;
+                    case "Bret Barker":
+                        assertEquals(3.75, currentAuthor.getDouble("averageRating"),0.00005);
+                        break;
+                    case "Laurence Vanhelsuwé":
+                        assertEquals(4.0, currentAuthor.getDouble("averageRating"),0.00005);
+                        break;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Test
+    public void getAllAuthors() {
+        JSONArray allAuthorsArray = BookRepository.getAllAuthors();
+        assertEquals(4, allAuthorsArray.length());
+    }
+
     private String testingArray = "[" +
             "{\n" +
             "   \"kind\": \"books#volume\",\n" +
