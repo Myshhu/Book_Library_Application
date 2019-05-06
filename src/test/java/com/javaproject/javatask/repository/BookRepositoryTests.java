@@ -32,6 +32,17 @@ public class BookRepositoryTests {
         }
     }
 
+    @Test
+    public void getBooksByCategory() {
+        assertEquals(new JSONArray(), BookRepository.getBooksByCategory(""));
+
+        JSONArray foundBooks = BookRepository.getBooksByCategory("Computers");
+        assertEquals(4, foundBooks.length());
+
+        foundBooks = BookRepository.getBooksByCategory("Biology");
+        assertEquals(1, foundBooks.length());
+    }
+
     private String testingArray = "[" +
             "{\n" +
             "   \"kind\": \"books#volume\",\n" +
