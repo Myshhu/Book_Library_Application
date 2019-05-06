@@ -18,7 +18,7 @@ public class JavaTaskControllerTests {
                 get("/bookdetails/{isbn}", "9781575211534"). //ISBN of book from testingArray
                 then().
                 statusCode(200).
-                body("volumeInfo.title", equalTo("Java unleashed"));
+                body("title", equalTo("Java unleashed"));
     }
 
     @Test

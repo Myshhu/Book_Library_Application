@@ -1,5 +1,6 @@
 package com.javaproject.javatask.repository;
 
+import com.javaproject.javatask.book.BookCreator;
 import com.javaproject.javatask.rest.JavaTaskController;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -35,18 +36,39 @@ public class BookRepository extends Repository {
         logger.info("BookRepository queried with ISBN: {}", requestedISBN);
 
         if (booksJSONArray != null) {
-            for (int i = 0; i < booksJSONArray.length(); i++) {
-                JSONObject currentBook = booksJSONArray.getJSONObject(i);
-                JSONObject currentBookVolumeInfo = currentBook.getJSONObject(VOLUME_INFO_KEY);
-                JSONArray currentBookIdentifiers = currentBookVolumeInfo.getJSONArray("industryIdentifiers");
+            JSONObject searchedBook = searchBookByISBN(requestedISBN);
 
-                for (int m = 0; m < currentBookIdentifiers.length(); m++) {
-                    JSONObject industryIdentifier = currentBookIdentifiers.getJSONObject(m);
-                    String isbn = industryIdentifier.getString("identifier");
-                    if (isbn.equals(requestedISBN)) {
-                        return currentBook;
-                    }
+            if (searchedBook == null) {
+                searchedBook = searchBookByID(requestedISBN);
+            }
+            return searchedBook;
+        }
+        return null;
+    }
+
+    private static JSONObject searchBookByISBN(String requestedISBN) {
+        for (int i = 0; i < booksJSONArray.length(); i++) {
+            JSONObject currentBook = booksJSONArray.getJSONObject(i);
+            JSONObject currentBookVolumeInfo = currentBook.getJSONObject(VOLUME_INFO_KEY);
+            JSONArray currentBookIdentifiers = currentBookVolumeInfo.getJSONArray("industryIdentifiers");
+
+            for (int m = 0; m < currentBookIdentifiers.length(); m++) {
+                JSONObject industryIdentifier = currentBookIdentifiers.getJSONObject(m);
+                String isbn = industryIdentifier.getString("identifier");
+                if (isbn.equals(requestedISBN)) {
+                    return BookCreator.createBookRecord(currentBook);
                 }
+            }
+        }
+        return null;
+    }
+
+    private static JSONObject searchBookByID(String requestedISBN) {
+        for (int i = 0; i < booksJSONArray.length(); i++) {
+            JSONObject currentBook = booksJSONArray.getJSONObject(i);
+            String bookId = currentBook.getString("id");
+            if (bookId.equals(requestedISBN)) {
+                return BookCreator.createBookRecord(currentBook);
             }
         }
         return null;
@@ -68,7 +90,8 @@ public class BookRepository extends Repository {
                 if (currentBookVolumeInfo.has("categories")) {
                     currentBookCategories = currentBookVolumeInfo.getJSONArray("categories");
                     if (containsString(currentBookCategories, requestedCategory)) {
-                        resultArray.put(currentBook);
+                        JSONObject bookRecord = BookCreator.createBookRecord(currentBook);
+                        resultArray.put(bookRecord);
                     }
                 }
             }

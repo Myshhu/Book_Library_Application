@@ -6,8 +6,7 @@ import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 public class BookRepositoryTests {
 
@@ -26,7 +25,12 @@ public class BookRepositoryTests {
 
         if (BookRepository.getBooksJSONArray() != null) {
             JSONObject firstBook = (JSONObject) BookRepository.getBooksJSONArray().get(0);
-            assertEquals(firstBook, BookRepository.getBookByISBN("0596001436")); //ISBN of first book
+            JSONObject firstBookVolumeInfo = firstBook.getJSONObject("volumeInfo");
+            JSONArray firstBookIndustryIdentifiers = firstBookVolumeInfo.getJSONArray("industryIdentifiers");
+            String isbn13 = getISBN13fromIdentifiers(firstBookIndustryIdentifiers);
+
+            assertTrue((firstBook.getString("id").equals(BookRepository.getBookByISBN("0596001436").getString("isbn"))) ||
+                            (isbn13.equals(BookRepository.getBookByISBN("0596001436").getString("isbn")))); //ISBN of first book
         } else {
             assertNull(BookRepository.getBookByISBN("0596001436")); //ISBN of first book
         }
@@ -73,6 +77,20 @@ public class BookRepositoryTests {
     public void getAllAuthors() {
         JSONArray allAuthorsArray = BookRepository.getAllAuthors();
         assertEquals(4, allAuthorsArray.length());
+    }
+
+    private static String getISBN13fromIdentifiers(JSONArray industryIdentifiers) {
+        try {
+            for (int i = 0; i < industryIdentifiers.length(); i++) {
+                JSONObject currentItem = industryIdentifiers.getJSONObject(i);
+                if (currentItem.has("type") && currentItem.getString("type").equals("ISBN_13")) {
+                    return currentItem.getString("identifier");
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "";
     }
 
     private String testingArray = "[" +
