@@ -5,11 +5,6 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -58,20 +53,6 @@ public class GoogleAPIBookRepository extends Repository {
     }
 
     /**
-     * @param url URL from where we want to read response
-     * @return URL response as String
-     */
-    private static String getResponseStringFromURL(String url) {
-        try (InputStream inputStream = new URL(url).openStream()) {
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, Charset.forName("UTF-8")));
-            return readBufferedReaderToString(bufferedReader);
-        } catch (Exception e) {
-            logger.error("getResponseStringFromURL error", e);
-        }
-        return null;
-    }
-
-    /**
      * @return JSONArray with authors and their books average rating
      */
     public static JSONArray getAuthorsRatings() {
@@ -94,7 +75,7 @@ public class GoogleAPIBookRepository extends Repository {
                         booksJSONArray);
             }
         }
-        return null;
+        return authorsWithSumOfAverageRatingsMap;
     }
 
     /**
@@ -103,8 +84,8 @@ public class GoogleAPIBookRepository extends Repository {
     public static JSONArray getAllAuthors() {
         logger.info("GoogleAPIBookRepository queried to find all authors.");
 
-        JSONObject responseObject;
         HashSet<String> authorsSet = new HashSet<>();
+        JSONObject responseObject;
         String jsonText = getResponseStringFromURL("https://www.googleapis.com/books/v1/volumes?q=*");
         if (jsonText != null) {
             responseObject = new JSONObject(jsonText);

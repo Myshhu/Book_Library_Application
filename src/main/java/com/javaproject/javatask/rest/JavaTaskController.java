@@ -19,7 +19,7 @@ public class JavaTaskController {
      * @param isbn parameter needed to search for a book with a given number
      * @return JSONObject with book details if found, else send 404 response
      */
-    @GetMapping(value = "/bookdetails/{ISBN}", produces = "application/json")
+    @GetMapping(value = "/bookdetails/{isbn}", produces = "application/json")
     public String bookDetailsByISBN(@PathVariable String isbn) {
         JSONObject foundBook = BookRepository.getBookByISBN(isbn);
 
@@ -35,7 +35,7 @@ public class JavaTaskController {
      * @param isbn parameter needed to search for a book with a given number
      * @return JSONObject with book details if found, else send 404 response
      */
-    @GetMapping(value = "/bookdetails/googleapi/{ISBN}", produces = "application/json")
+    @GetMapping(value = "/bookdetails/googleapi/{isbn}", produces = "application/json")
     public String bookDetailsByISBNFromGoogleAPI(@PathVariable String isbn) {
         JSONObject foundBook = GoogleAPIBookRepository.getBookByISBN(isbn);
 

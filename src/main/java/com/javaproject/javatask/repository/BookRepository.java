@@ -102,7 +102,6 @@ public class BookRepository extends Repository {
     public static JSONArray getAllAuthors() {
         logger.info("BookRepository queried to find all authors.");
         HashSet<String> authorsSet = new HashSet<>();
-
         if (booksJSONArray != null) {
             authorsSet = findAuthors(booksJSONArray);
         }
