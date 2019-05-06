@@ -1,23 +1,12 @@
 package com.javaproject.javatask.rest;
 
-import com.javaproject.javatask.repository.BookRepository;
-import org.json.JSONArray;
-import org.junit.Before;
+import org.hamcrest.Matchers;
 import org.junit.Test;
 
 import static io.restassured.RestAssured.when;
 import static org.hamcrest.Matchers.equalTo;
 
 public class JavaTaskControllerTests {
-
-    @Before
-    public void initBookRepository() {
-        try {
-            BookRepository.setBooksJSONArray(new JSONArray(testingArray));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
     @Test
     public void bookDetailsByISBN() {
@@ -42,6 +31,32 @@ public class JavaTaskControllerTests {
 
         when().
                 get("/bookdetails/googleapi/{isbn}", "1234"). //Random query
+                then().
+                statusCode(200);
+    }
+
+    @Test
+    public void findBooksDetailsByCategory() {
+        when().
+                get("/bookscategory/{category}", "").
+                then().
+                statusCode(200).body("$", Matchers.hasSize(0));
+
+        when().
+                get("/bookscategory/{category}", "Computers").
+                then().
+                statusCode(200).body("$", Matchers.hasSize(22)); // "books.json" file has 22 books in Computers category
+    }
+
+    @Test
+    public void findBooksDetailsByCategoryFromGoogleAPI() {
+        when().
+                get("/bookscategory/googleapi/{category}", "").
+                then().
+                statusCode(200).body("", Matchers.hasSize(0));
+
+        when().
+                get("/bookscategory/googleapi/{category}", "Computers").
                 then().
                 statusCode(200);
     }
