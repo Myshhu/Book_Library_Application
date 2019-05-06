@@ -23,14 +23,27 @@ public class JavaTaskControllerTests {
     public void bookDetailsByISBN() {
         when().
                 get("/bookdetails/{isbn}", "").
-        then().
+                then().
                 statusCode(404);
 
         when().
                 get("/bookdetails/{isbn}", "9781575211534"). //ISBN of book from testingArray
-        then().
+                then().
                 statusCode(200).
                 body("volumeInfo.title", equalTo("Java unleashed"));
+    }
+
+    @Test
+    public void bookDetailsByISBNFromGoogleAPI() {
+        when().
+                get("/bookdetails/googleapi/{isbn}", "").
+                then().
+                statusCode(404);
+
+        when().
+                get("/bookdetails/googleapi/{isbn}", "1234"). //Random query
+                then().
+                statusCode(200);
     }
 
     private String testingArray = "[" +
